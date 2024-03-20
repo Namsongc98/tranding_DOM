@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="style/style.css"
+      th:href="@{style/style.css}"
+    />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="header">
+      <div class="wp-input">
+        <input type="text" class="input-search" />
+      </div>
+      <button class="btn-search">Search</button>
+    </div>
+    <div class="wp-input-body">
+      <div class="wp-input">
+        <input type="date" name="" id="" class="start-date" />
+        <input type="date" name="" id="" class="end-date" />
+      </div>
+      <label class="label-checkbox">
+        <input type="checkbox" class="checkbox-input" />
+        Completed
+      </label>
+    </div>
+    <h3 class="title">Receiving</h3>
+    <div class="wp-table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width: 20px"><input type="checkbox" /></th>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tablebody"></tbody>
+      </table>
+      <div class=""></div>
+      <div class="wp-input">
+        <label for="" class="" id="">
+          ID User
+          <input type="text" name="" id="idUser" class="start-date" /> </label
+        ><br />
+        <label for="" class="" id="">
+          firstName
+          <input
+            type="text"
+            name=""
+            id="firstName"
+            class="start-date"
+          /> </label
+        ><br />
+        <label>
+          lastName
+          <input type="text" name="" id="lastName" class="end-date" />
+        </label>
+        <button id="submit" type="submit">Submit</button>
+        <button id="select">select</button>
+        <button id="pushGenerated">push</button>
+      </div>
+    </div>
+
+    <script src="main/main.js" type="module"></script>
+    <script></script>
+  </body>
+</html>

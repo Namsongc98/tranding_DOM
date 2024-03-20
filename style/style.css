@@ -1,0 +1,103 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: black;
+    max-width: 1500px;
+    width: 100%;
+    padding: 20px 40px;
+}
+
+.header {
+    display: flex;
+    gap: 20px;
+    height: 60px;
+    align-items: center;
+}
+
+.wp-input {
+    height: 40px;
+    width: 400px;
+}
+
+.input-search {
+    height: 40px;
+    width: 100%;
+}
+
+.btn-search {
+    height: 40px;
+    width: 100px;
+    background-color: white;
+    border-radius: 3px;
+    border: 1px solid;
+}
+
+.wp-input-body {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.wp-input-body>.wp-input {
+    width: 400px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-check{
+    display: flex;
+    align-items: center;
+}
+
+
+input[type="date"] {
+    background: white;
+    height: 40px;
+    width: 48%;
+    border: 1px solid;
+    outline: none;
+    padding: auto 4px;
+}
+
+.label-checkbox {
+    color: white;
+}
+
+.title {
+    width: 100%;
+    color: white;
+    text-align: center;
+}
+
+.wp-table {
+    width: 100%;
+}
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table th,
+table td {
+    padding: 8px;
+    border: 1px solid black;
+}
+
+th {
+    color: white !important;
+}
+
+td {
+    background-color: white !important;
+}
+
+label {
+    margin-top: 10px;
+    color: white !important;
+    display: block;
+}
