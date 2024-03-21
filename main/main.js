@@ -8,6 +8,10 @@ import {
   remove,
   push,
   onValue,
+  query,
+  orderByChild,
+  startAt,
+  endAt,
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 
@@ -58,16 +62,26 @@ const startDate = document.getElementById("startDate");
 const endDate = document.getElementById("endDate");
 const completed = document.getElementById("completed");
 const checkAll = document.getElementById("check-all");
+const inputSearch = document.getElementById("search");
+const btnSearch = document.getElementById("search-btn");
 
 startDate.value = formattedDate;
 endDate.value = formattedDate;
 
 function changedateformat(val) {
   const myArray = val.split("-");
-  let year = myArray[0];
-  let month = myArray[1];
-  let day = myArray[2];
-  let formatteddate = day + "/" + month + "/" + year;
+  const year = myArray[0];
+  const month = myArray[1];
+  const day = myArray[2];
+  const formatteddate = day + "/" + month + "/" + year;
+  return formatteddate;
+}
+function changedateformatdefault(val) {
+  const myArray = val.split("/");
+  const year = myArray[2];
+  const month = myArray[1];
+  const day = myArray[0];
+  const formatteddate = year + "-" + month + "-" + day;
   return formatteddate;
 }
 
@@ -80,49 +94,21 @@ document.addEventListener("DOMContentLoaded", () => {
   async function getUser() {
     try {
       await onValue(dbRef, (snapshot) => {
-        let listUser = ``;
-        snapshot.forEach((childSnapshot) => {
-          const childKey = childSnapshot.key;
-          const childData = childSnapshot.val();
-          listUser += `<tr>
-                       <td><input type="checkbox" name="checkbox" id="${childKey}"  onchange="handleCheckbox(this,'${childKey}')" /></td>
-                        <td>${childKey}</td>
-                        <td>${childData.first_name}</td>
-                        <td>${childData.last_name}</td>
-                        <td>${
-                          childData.start_date
-                            ? childData.start_date
-                            : "không có dữ liệu"
-                        }</td>
-                        <td>${
-                          childData.end_date
-                            ? childData.end_date
-                            : "không có dữ liệu"
-                        }</td>
-                        <td> <input type="checkbox"  class="checkbox-input" ${
-                          childData.completed ? "checked" : ""
-                        } id="completed" /></td>
-                        <td>  
-                            <button  onclick="selectData('${childKey}')">select</button>
-                            <button  onclick="removeUserData('${childKey}')">delete</button>
-                        </td>
-                    </tr>`;
-        });
-        document.getElementById("tablebody").innerHTML = listUser;
+        renderListUser(snapshot);
+
         const checkboxes = document.getElementsByName("checkbox");
         checkAll.addEventListener("change", () => {
           checkboxes.forEach((item) => {
             item.checked = checkAll.checked;
           });
         });
-        let flag = false
+
         window.handleCheckbox = (inputThis) => {
-          checkboxes.forEach((item)=>{
-            if(item.checked === ){
-                
-            }
-          })
-          
+          const checkboxesArray = Array.from(checkboxes);
+          const isCheck =
+            checkboxes.length ===
+            checkboxesArray.filter((input) => input.checked === true).length;
+          checkAll.checked = isCheck;
         };
       });
     } catch (error) {
@@ -132,6 +118,36 @@ document.addEventListener("DOMContentLoaded", () => {
   getUser();
 });
 
+const renderListUser = (snapshot) => {
+  let listUser = ``;
+  snapshot.forEach((childSnapshot) => {
+    const childKey = childSnapshot.key;
+    const childData = childSnapshot.val();
+    listUser += `<tr>
+                 <td><input type="checkbox" name="checkbox"  onchange="handleCheckbox()" /></td>
+                  <td>${childKey}</td>
+                  <td>${childData.first_name}</td>
+                  <td>${childData.last_name}</td>
+                  <td>${
+                    childData.start_date
+                      ? childData.start_date
+                      : "không có dữ liệu"
+                  }</td>
+                  <td>${
+                    childData.end_date ? childData.end_date : "không có dữ liệu"
+                  }</td>
+                  <td> <input type="checkbox"  class="checkbox-input" ${
+                    childData.completed ? "checked" : ""
+                  } id="completed" /></td>
+                  <td>  
+                      <button  onclick="selectData('${childKey}')">select</button>
+                      <button  onclick="removeUserData('${childKey}')">delete</button>
+                  </td>
+              </tr>`;
+  });
+  document.getElementById("tablebody").innerHTML = listUser;
+};
+
 // get user theo id
 window.selectData = (id) => {
   const dataref = ref(db);
@@ -140,6 +156,9 @@ window.selectData = (id) => {
       idUser.value = id;
       firstName.value = snapshot.val().first_name;
       lastName.value = snapshot.val().last_name;
+      startDate.value = changedateformatdefault(snapshot.val().start_date);
+      endDate.value = changedateformatdefault(snapshot.val().end_date);
+      completed.checked = snapshot.val().completed;
     } else {
       alert("no data");
     }
@@ -161,7 +180,7 @@ function pushGenerated() {
     start_date: changedateformat(startDate.value),
     end_date: changedateformat(endDate.value),
     completed: completed.checked,
-  }).catch((err) => console.log(err));
+  }).catch((err) => alert(err));
 }
 // update user
 const updateUserData = () => {
@@ -171,14 +190,30 @@ const updateUserData = () => {
     start_date: changedateformat(startDate.value),
     end_date: changedateformat(endDate.value),
     completed: completed.checked,
-  }).catch((err) => console.log(err));
+  }).catch((err) => alert(err));
 };
 //xóa user
 window.removeUserData = (id) => {
   console.log(id);
-  remove(ref(db, "users/" + id)).catch((err) => console.log(err));
+  remove(ref(db, "users/" + id)).catch((err) => alert(err));
 };
+
+function searchData() {
+  const dbRef = ref(db, "users/");
+  onValue(
+    query(
+      dbRef,
+      orderByChild("first_name"),
+      startAt(`${inputSearch.value}`),
+      endAt(inputSearch.value + "\uf8ff")
+    ),
+    (snapshot) => {
+      renderListUser(snapshot);
+    }
+  );
+}
 
 //insbtn.addEventListener("click", writeUserData);
 updatebtn.addEventListener("click", updateUserData);
 pushbtn.addEventListener("click", pushGenerated);
+btnSearch.addEventListener("click", searchData);
