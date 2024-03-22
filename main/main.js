@@ -12,8 +12,15 @@ import {
   orderByChild,
   startAt,
   endAt,
+  limitToFirst,
+  orderByKey,
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+
+import {
+  getMessaging,
+  getToken,
+} from "https://www.gstatic.com/firebasejs/10.9.0/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLyi67O-AUbdXZK1wdM0F5Vvi_couK6u0",
@@ -26,25 +33,17 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase();
+const messaging = getMessaging();
 
-function formatDate(inputDate) {
-  console.log(inputDate);
-  var dateParts = inputDate.split("/");
-  var formattedDate = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);
-  var day = formattedDate.getDate();
-  var month = formattedDate.getMonth() + 1;
-  var year = formattedDate.getFullYear();
-  var formattedString =
-    (day < 10 ? "0" : "") +
-    day +
-    "/" +
-    (month < 10 ? "0" : "") +
-    month +
-    "/" +
-    year;
-  console.log(formattedString);
-  return formattedString;
-}
+getToken(messaging, { vapidKey: 'AIzaSyBLyi67O-AUbdXZK1wdM0F5Vvi_couK6u0' }).then((currentToken) => {
+  if (currentToken) {
+    console.log(currentToken)
+  } else {
+    console.log('No registration token available. Request permission to generate one.');
+  }
+}).catch((err) => {
+  console.log('An error occurred while retrieving token. ', err);
+});
 
 const inputDate = new Date();
 const date = inputDate.getDate();
@@ -54,20 +53,28 @@ const year = inputDate.getFullYear();
 const formattedDate = `${year}-${month.toString().padStart(2, "0")}-${date
   .toString()
   .padStart(2, "0")}`;
-
+// form data user
 const idUser = document.getElementById("idUser");
 const firstName = document.getElementById("firstName");
 const lastName = document.getElementById("lastName");
 const startDate = document.getElementById("startDate");
 const endDate = document.getElementById("endDate");
 const completed = document.getElementById("completed");
-const checkAll = document.getElementById("check-all");
-const inputSearch = document.getElementById("search");
-const btnSearch = document.getElementById("search-btn");
-
 startDate.value = formattedDate;
 endDate.value = formattedDate;
 
+// data checkbox
+const checkAll = document.getElementById("check-all");
+
+// data input search
+const inputSearch = document.getElementById("search");
+const btnSearch = document.getElementById("search-btn");
+
+// data page current
+const reqPerPage = document.getElementById("req_per_page");
+let lastKey = null;
+
+// format date push realtime
 function changedateformat(val) {
   const myArray = val.split("-");
   const year = myArray[0];
@@ -76,7 +83,10 @@ function changedateformat(val) {
   const formatteddate = day + "/" + month + "/" + year;
   return formatteddate;
 }
+
+// format date  defaut input
 function changedateformatdefault(val) {
+  if (!val) return formattedDate;
   const myArray = val.split("/");
   const year = myArray[2];
   const month = myArray[1];
@@ -84,72 +94,77 @@ function changedateformatdefault(val) {
   const formatteddate = year + "-" + month + "-" + day;
   return formatteddate;
 }
-
+// get data btn
 //const insbtn = document.getElementById("submit");
 const updatebtn = document.getElementById("update");
 const pushbtn = document.getElementById("pushGenerated");
 
+// render data
 document.addEventListener("DOMContentLoaded", () => {
   const dbRef = ref(db, "users/");
   async function getUser() {
     try {
-      await onValue(dbRef, (snapshot) => {
-        renderListUser(snapshot);
-
-        const checkboxes = document.getElementsByName("checkbox");
-        checkAll.addEventListener("change", () => {
-          checkboxes.forEach((item) => {
-            item.checked = checkAll.checked;
-          });
-        });
-
-        window.handleCheckbox = (inputThis) => {
-          const checkboxesArray = Array.from(checkboxes);
-          const isCheck =
-            checkboxes.length ===
-            checkboxesArray.filter((input) => input.checked === true).length;
-          checkAll.checked = isCheck;
-        };
-      });
+      await onValue(
+        query(dbRef, orderByKey(), limitToFirst(+reqPerPage.value)),
+        (snapshot) => {
+          return renderListUser(snapshot);
+        }
+      );
     } catch (error) {
       console.log(error);
     }
   }
   getUser();
 });
-
+// hàm render
 const renderListUser = (snapshot) => {
   let listUser = ``;
   snapshot.forEach((childSnapshot) => {
     const childKey = childSnapshot.key;
     const childData = childSnapshot.val();
+    lastKey = childKey;
     listUser += `<tr>
-                 <td><input type="checkbox" name="checkbox"  onchange="handleCheckbox()" /></td>
-                  <td>${childKey}</td>
-                  <td>${childData.first_name}</td>
-                  <td>${childData.last_name}</td>
-                  <td>${
-                    childData.start_date
-                      ? childData.start_date
-                      : "không có dữ liệu"
-                  }</td>
-                  <td>${
-                    childData.end_date ? childData.end_date : "không có dữ liệu"
-                  }</td>
-                  <td> <input type="checkbox"  class="checkbox-input" ${
-                    childData.completed ? "checked" : ""
-                  } id="completed" /></td>
-                  <td>  
-                      <button  onclick="selectData('${childKey}')">select</button>
-                      <button  onclick="removeUserData('${childKey}')">delete</button>
-                  </td>
+                       <td><input type="checkbox" name="checkbox"  onchange="handleCheckbox()" /></td>
+                        <td>${childKey}</td>
+                        <td>${childData.first_name}</td>
+                        <td>${childData.last_name}</td>
+                        <td>${
+                          childData.start_date
+                            ? childData.start_date
+                            : "không có dữ liệu"
+                        }</td>
+                        <td>${
+                          childData.end_date
+                            ? childData.end_date
+                            : "không có dữ liệu"
+                        }</td>
+                        <td> <input type="checkbox"  class="checkbox-input" ${
+                          childData.completed ? "checked" : ""
+                        } id="completed" /></td>
+                        <td>  
+                            <button  onclick="selectData('${childKey}')">select</button>
+                            <button  onclick="removeUserData('${childKey}')">delete</button>
+                        </td>
               </tr>`;
   });
   document.getElementById("tablebody").innerHTML = listUser;
+  const checkboxes = document.getElementsByName("checkbox");
+  checkAll.addEventListener("change", () => {
+    checkboxes.forEach((item) => {
+      item.checked = checkAll.checked;
+    });
+  });
+  window.handleCheckbox = () => {
+    const checkboxesArray = [...checkboxes];
+    const isCheck =
+      checkboxes.length ===
+      checkboxesArray.filter((input) => input.checked === true).length;
+    checkAll.checked = isCheck;
+  };
 };
 
 // get user theo id
-window.selectData = (id) => {
+window.selectData = async (id) => {
   const dataref = ref(db);
   get(child(dataref, "users/" + id)).then((snapshot) => {
     if (snapshot.exists()) {
@@ -173,6 +188,7 @@ function writeUserData() {
   }).catch((err) => console.log(err));
 }
 // tạo user auto id
+pushbtn.addEventListener("click", pushGenerated);
 function pushGenerated() {
   set(push(ref(db, "users/")), {
     first_name: firstName.value,
@@ -180,10 +196,13 @@ function pushGenerated() {
     start_date: changedateformat(startDate.value),
     end_date: changedateformat(endDate.value),
     completed: completed.checked,
-  }).catch((err) => alert(err));
+  })
+    .then(() => alert("tạo thành công"))
+    .catch((err) => alert(err));
 }
 // update user
-const updateUserData = () => {
+updatebtn.addEventListener("click", updateUserData);
+function updateUserData() {
   update(ref(db, "users/" + idUser.value), {
     first_name: firstName.value,
     last_name: lastName.value,
@@ -191,13 +210,15 @@ const updateUserData = () => {
     end_date: changedateformat(endDate.value),
     completed: completed.checked,
   }).catch((err) => alert(err));
-};
+}
 //xóa user
 window.removeUserData = (id) => {
   console.log(id);
   remove(ref(db, "users/" + id)).catch((err) => alert(err));
 };
 
+// tìm kiếm
+btnSearch.addEventListener("click", searchData);
 function searchData() {
   const dbRef = ref(db, "users/");
   onValue(
@@ -213,7 +234,60 @@ function searchData() {
   );
 }
 
+// change page
+const prevPage = document.getElementById("previousPage");
+const nextPage = document.getElementById("nextPage");
+const currenPage = document.getElementById("currenPage");
+currenPage.innerText = 1;
+
+prevPage.addEventListener("click", handlePrevPage);
+nextPage.addEventListener("click", handleNextPage);
+
+// previous page
+async function handlePrevPage() {
+  if (currenPage.innerText > 1) {
+    currenPage.innerText--;
+    const dbRef = ref(db, "users/");
+    await onValue(
+      query(
+        dbRef,
+        orderByKey(),
+        limitToFirst(+reqPerPage.value),
+        endAt(lastKey)
+      ),
+      (snapshot) => {
+        renderListUser(snapshot);
+      }
+    );
+  }
+}
+// next page 
+async function handleNextPage() {
+  currenPage.innerText++;
+  const dbRef = ref(db, "users/");
+  await onValue(
+    query(
+      dbRef,
+      orderByKey(),
+      limitToFirst(+reqPerPage.value),
+      startAt(lastKey)
+    ),
+    (snapshot) => {
+      renderListUser(snapshot);
+    }
+  );
+}
+// listen select option pagination
+reqPerPage.addEventListener("change", async () => {
+  const dbRef = ref(db, "users/");
+  await onValue(
+    query(dbRef, orderByKey(), limitToFirst(+reqPerPage.value)),
+    (snapshot) => {
+      renderListUser(snapshot);
+    }
+  );
+});
+
 //insbtn.addEventListener("click", writeUserData);
-updatebtn.addEventListener("click", updateUserData);
-pushbtn.addEventListener("click", pushGenerated);
-btnSearch.addEventListener("click", searchData);
+
+

@@ -13,9 +13,9 @@
   <body>
     <div class="header">
       <div class="wp-input">
-        <input type="text" class="input-search" id="search"/>
+        <input type="text" class="input-search" id="search" />
       </div>
-      <button class="btn-search" id="search-btn" >Search</button>
+      <button class="btn-search" id="search-btn">Search</button>
     </div>
     <div class="wp-input-body">
       <div class="wp-input">
@@ -48,7 +48,9 @@
       <table class="table">
         <thead>
           <tr>
-            <th style="width: 20px"><input type="checkbox" id="check-all" /></th>
+            <th style="width: 20px">
+              <input type="checkbox" id="check-all" />
+            </th>
             <th>ID</th>
             <th>First Name</th>
             <th>Last Name</th>
@@ -60,7 +62,37 @@
         </thead>
         <tbody id="tablebody"></tbody>
       </table>
-      <div class=""></div>
+      <div
+        class=""
+        style="margin-top: 20px; display: flex; justify-content: space-between"
+      >
+        <div class="clearfix">
+          <div class="box options">
+            <span style="color: white">show </span>
+            <select id="req_per_page" style="margin: 0 10px; padding: 5px 10px">
+              <option value="3">3</option>
+              <option value="6">6</option>
+            </select>
+            <span style="color: white">entries </span>
+          </div>
+          <div class="box pagination"></div>
+        </div>
+        <div class="" style="display: flex; align-items: center">
+          <span style="color: white; cursor: pointer" id="previousPage"
+            >Previous</span
+          >
+          <div
+            style="
+              margin: 0 10px;
+              padding: 5px 10px;
+              border: 1px solid;
+              background-color: white;
+            "
+            id="currenPage"
+          ></div>
+          <span style="color: white; cursor: pointer" id="nextPage">Next</span>
+        </div>
+      </div>
     </div>
 
     <script src="main/common.js" type="text/javascript"></script>
