@@ -90,6 +90,8 @@ const updatebtn = document.getElementById("update");
 const pushbtn = document.getElementById("pushGenerated");
 
 // render data
+
+
 document.addEventListener("DOMContentLoaded", () => {
   const dbRef = ref(db, "users/");
   async function getUser() {

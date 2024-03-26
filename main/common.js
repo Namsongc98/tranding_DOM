@@ -42,13 +42,15 @@ function requestPermission() {
           console.log(err);
           setTokenSentToServer(false);
         });
+    }else{
+        alert("hãy bật thông báo để không bỏ lỡ điều gì")
     }
   });
 }
 
 requestPermission();
 
-function sendTokenToServer(currentToken) {
+function sendTokenToServer() {
   if (!isTokenSentToServer()) {
     console.log("Sending token to server ...");
     setTokenSentToServer(true);
