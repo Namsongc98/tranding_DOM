@@ -16,12 +16,6 @@ import {
   orderByKey,
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-
-import {
-  getMessaging,
-  getToken,
-} from "https://www.gstatic.com/firebasejs/10.9.0/firebase-messaging.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyBLyi67O-AUbdXZK1wdM0F5Vvi_couK6u0",
   authDomain: "projectdemo-ad6dd.firebaseapp.com",
@@ -30,40 +24,14 @@ const firebaseConfig = {
   storageBucket: "projectdemo-ad6dd.appspot.com",
   messagingSenderId: "859784439972",
   appId: "1:859784439972:web:5c736ee89e4843c5c85e31",
-  measurementId: "G-RGPXLLCE1Z",
+  measurementId: "G-RGPXLLCE1Z"
 };
+
 const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
 const db = getDatabase(app);
-console.log(messaging)
-getToken(messaging, {
-  vapidKey:
-    "BDPshvtX9FxW8l8AKx39z5TtjxDIBgvVjnJAvDA8TldKssFf1ZedJcEW-OPYtHxTZcCFUD1I0h3VODL36MFbyRk",
-}).catch((err) => console.log(err));
-// function requestPermission() {
-//   console.log("Requesting permission...");
-//   Notification.requestPermission().then((permission) => {
-//     if (permission === "granted") {
-//       getToken(messaging, {
-//         vapidKey:
-//           "BDPshvtX9FxW8l8AKx39z5TtjxDIBgvVjnJAvDA8TldKssFf1ZedJcEW-OPYtHxTZcCFUD1I0h3VODL36MFbyRk",
-//       })
-//         .then((currentToken) => {
-//           if (currentToken) {
-//             console.log(currentToken);
-//           } else {
-//             console.log(
-//               "No registration token available. Request permission to generate one."
-//             );
-//           }
-//         })
-//         .catch((err) => {
-//           console.log(err);
-//         });
-//     }
-//   });
-// }
-// requestPermission()
+
+
+
 const inputDate = new Date();
 const date = inputDate.getDate();
 const month = inputDate.getMonth() + 1;
@@ -84,6 +52,7 @@ endDate.value = formattedDate;
 
 // data checkbox
 const checkAll = document.getElementById("check-all");
+const checkBtn = document.getElementById("getSelect");
 
 // data input search
 const inputSearch = document.getElementById("search");
@@ -92,6 +61,8 @@ const btnSearch = document.getElementById("search-btn");
 // data page current
 const reqPerPage = document.getElementById("req_per_page");
 let lastKey = null;
+
+const checkboxes = document.getElementsByName("checkbox");
 
 // format date push realtime
 function changedateformat(val) {
@@ -119,6 +90,8 @@ const updatebtn = document.getElementById("update");
 const pushbtn = document.getElementById("pushGenerated");
 
 // render data
+
+
 document.addEventListener("DOMContentLoaded", () => {
   const dbRef = ref(db, "users/");
   async function getUser() {
@@ -136,54 +109,73 @@ document.addEventListener("DOMContentLoaded", () => {
   getUser();
 });
 // hàm render
+
 const renderListUser = (snapshot) => {
   let listUser = ``;
   snapshot.forEach((childSnapshot) => {
     const childKey = childSnapshot.key;
     const childData = childSnapshot.val();
     lastKey = childKey;
-    listUser += `<tr>
-                       <td><input type="checkbox" name="checkbox"  onchange="handleCheckbox()" /></td>
-                        <td>${childKey}</td>
-                        <td>${childData.first_name}</td>
-                        <td>${childData.last_name}</td>
-                        <td>${
-                          childData.start_date
-                            ? childData.start_date
-                            : "không có dữ liệu"
-                        }</td>
-                        <td>${
-                          childData.end_date
-                            ? childData.end_date
-                            : "không có dữ liệu"
-                        }</td>
-                        <td> <input type="checkbox"  class="checkbox-input" ${
-                          childData.completed ? "checked" : ""
-                        } id="completed" /></td>
-                        <td>  
-                            <button  onclick="selectData('${childKey}')">select</button>
-                            <button  onclick="removeUserData('${childKey}')">delete</button>
-                        </td>
-              </tr>`;
+    listUser = `<tr>
+                  <td><input type="checkbox" name="checkbox" onchange="handleCheckbox(this,'${childKey}')" /></td>
+                  <td>${childKey}</td>
+                  <td>${childData.first_name}</td>
+                  <td>${childData.last_name}</td>
+                  <td>${childData.start_date ? childData.start_date : "không có dữ liệu"}</td>
+                  <td>${childData.end_date ? childData.end_date : "không có dữ liệu"}</td>
+                  <td> <input type="checkbox"  class="checkbox-input" ${
+                    childData.completed ? "checked" : ""
+                  } id="completed" /></td>
+                  <td>  
+                      <button  onclick="selectData('${childKey}')">select</button>
+                      <button  onclick="removeUserData('${childKey}')">delete</button>
+                  </td>
+              </tr>` + listUser;
   });
   document.getElementById("tablebody").innerHTML = listUser;
-  const checkboxes = document.getElementsByName("checkbox");
-  checkAll.addEventListener("change", () => {
-    checkboxes.forEach((item) => {
-      item.checked = checkAll.checked;
-    });
-  });
-  window.handleCheckbox = () => {
-    const checkboxesArray = [...checkboxes];
-    const isCheck =
-      checkboxes.length ===
-      checkboxesArray.filter((input) => input.checked === true).length;
-    checkAll.checked = isCheck;
-  };
 };
 
+// checkbox all
+checkAll.addEventListener("change", () => {
+  checkboxes.forEach((item) => {
+    item.checked = checkAll.checked;
+  });
+});
+
+// checkb
+const listCheck = [];
+window.handleCheckbox = async (thischeck, idUser) => {
+  const checkboxesArray = [...checkboxes];
+  const isCheck =
+    checkboxes.length ===
+    checkboxesArray.filter((input) => input.checked === true).length;
+  checkAll.checked = isCheck;
+  if (thischeck.checked) {
+    const dataref = ref(db);
+    get(child(dataref, "users/" + idUser)).then((snapshot) => {
+      if (snapshot.exists()) {
+        listCheck.push({ id: idUser, ...snapshot.val() });
+        console.log(listCheck);
+      } else {
+        alert("no data");
+      }
+    });
+  }else{
+    console.log(first)
+    listCheck.filter((item)=>{
+        item.id !== idUser
+     })
+     console.log(listCheck);
+  }
+
+};
+
+checkBtn.addEventListener("click", () => {
+  console.log(selectData.filter((item) => item.checked === true));
+});
+
 // get user theo id
-window.selectData = async (id) => {
+window.selectData = (id) => {
   const dataref = ref(db);
   get(child(dataref, "users/" + id)).then((snapshot) => {
     if (snapshot.exists()) {
@@ -232,7 +224,6 @@ function updateUserData() {
 }
 //xóa user
 window.removeUserData = (id) => {
-  console.log(id);
   remove(ref(db, "users/" + id)).catch((err) => alert(err));
 };
 
