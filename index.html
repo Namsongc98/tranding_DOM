@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html
+  lang="en"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:th="http://www.thymeleaf.org"
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="style/style.css"
-      th:href="@{style/style.css}"
-    />
+    <link rel="stylesheet" href="style/style.css" />
     <title>Document</title>
   </head>
   <body>
@@ -41,6 +41,7 @@
         <!-- <button id="submit" type="submit">Submit</button> -->
         <button id="update">update</button>
         <button id="pushGenerated">push</button>
+        <button id="getSelect">GetSelect</button>
       </div>
     </div>
     <h3 class="title">Receiving</h3>
@@ -49,7 +50,7 @@
         <thead>
           <tr>
             <th style="width: 20px">
-              <input type="checkbox" id="check-all" />
+              <input type="checkbox" id="check-all" name="action" />
             </th>
             <th>ID</th>
             <th>First Name</th>
@@ -95,7 +96,11 @@
       </div>
     </div>
 
-    <script src="main/common.js" type="text/javascript"></script>
+    <script src="main/common.js" type="module"></script>
     <script src="main/main.js" type="module"></script>
+
+    <script type="module">
+     
+    </script>
   </body>
 </html>
