@@ -13,9 +13,12 @@ const firebaseConfig = {
   appId: "1:859784439972:web:5c736ee89e4843c5c85e31",
   measurementId: "G-RGPXLLCE1Z",
 };
+
 const app = firebase.initializeApp(firebaseConfig);
+
 const messaging = firebase.messaging();
 messaging.onMessage((payload) => {
+  alert("có thông báo");
   console.log("payload", payload);
 });
 
@@ -42,8 +45,8 @@ function requestPermission() {
           console.log(err);
           setTokenSentToServer(false);
         });
-    }else{
-        alert("hãy bật thông báo để không bỏ lỡ điều gì")
+    } else {
+      alert("hãy bật thông báo để không bỏ lỡ điều gì");
     }
   });
 }

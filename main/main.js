@@ -24,13 +24,11 @@ const firebaseConfig = {
   storageBucket: "projectdemo-ad6dd.appspot.com",
   messagingSenderId: "859784439972",
   appId: "1:859784439972:web:5c736ee89e4843c5c85e31",
-  measurementId: "G-RGPXLLCE1Z"
+  measurementId: "G-RGPXLLCE1Z",
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
-
 
 const inputDate = new Date();
 const date = inputDate.getDate();
@@ -51,7 +49,7 @@ startDate.value = formattedDate;
 endDate.value = formattedDate;
 
 // data checkbox
-const checkAll = document.getElementById("check-all");
+
 const checkBtn = document.getElementById("getSelect");
 
 // data input search
@@ -63,6 +61,7 @@ const reqPerPage = document.getElementById("req_per_page");
 let lastKey = null;
 
 const checkboxes = document.getElementsByName("checkbox");
+console.log($("input[name*='checkbox']"))
 
 // format date push realtime
 function changedateformat(val) {
@@ -90,9 +89,7 @@ const updatebtn = document.getElementById("update");
 const pushbtn = document.getElementById("pushGenerated");
 
 // render data
-
-
-document.addEventListener("DOMContentLoaded", () => {
+$(document).ready(function () {
   const dbRef = ref(db, "users/");
   async function getUser() {
     try {
@@ -108,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   getUser();
 });
+
 // hàm render
 
 const renderListUser = (snapshot) => {
@@ -116,13 +114,20 @@ const renderListUser = (snapshot) => {
     const childKey = childSnapshot.key;
     const childData = childSnapshot.val();
     lastKey = childKey;
-    listUser = `<tr>
+    listUser =
+      `<tr>
                   <td><input type="checkbox" name="checkbox" onchange="handleCheckbox(this,'${childKey}')" /></td>
                   <td>${childKey}</td>
                   <td>${childData.first_name}</td>
                   <td>${childData.last_name}</td>
-                  <td>${childData.start_date ? childData.start_date : "không có dữ liệu"}</td>
-                  <td>${childData.end_date ? childData.end_date : "không có dữ liệu"}</td>
+                  <td>${
+                    childData.start_date
+                      ? childData.start_date
+                      : "không có dữ liệu"
+                  }</td>
+                  <td>${
+                    childData.end_date ? childData.end_date : "không có dữ liệu"
+                  }</td>
                   <td> <input type="checkbox"  class="checkbox-input" ${
                     childData.completed ? "checked" : ""
                   } id="completed" /></td>
@@ -132,16 +137,18 @@ const renderListUser = (snapshot) => {
                   </td>
               </tr>` + listUser;
   });
-  document.getElementById("tablebody").innerHTML = listUser;
+
+  $("#tablebody").html(listUser);
 };
 
 // checkbox all
-checkAll.addEventListener("change", () => {
+$("#check-all").change(() => {
+  
+  console.log($("#check-all").prop('checked'))
   checkboxes.forEach((item) => {
-    item.checked = checkAll.checked;
+    item.checked = $("#check-all").prop('checked');
   });
 });
-
 // checkb
 const listCheck = [];
 window.handleCheckbox = async (thischeck, idUser) => {
@@ -160,14 +167,13 @@ window.handleCheckbox = async (thischeck, idUser) => {
         alert("no data");
       }
     });
-  }else{
-    console.log(first)
-    listCheck.filter((item)=>{
-        item.id !== idUser
-     })
-     console.log(listCheck);
+  } else {
+    console.log(first);
+    listCheck.filter((item) => {
+      item.id !== idUser;
+    });
+    console.log(listCheck);
   }
-
 };
 
 checkBtn.addEventListener("click", () => {
