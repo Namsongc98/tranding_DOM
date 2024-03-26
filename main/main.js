@@ -25,26 +25,45 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyBLyi67O-AUbdXZK1wdM0F5Vvi_couK6u0",
   authDomain: "projectdemo-ad6dd.firebaseapp.com",
+  databaseURL: "https://projectdemo-ad6dd-default-rtdb.firebaseio.com",
   projectId: "projectdemo-ad6dd",
   storageBucket: "projectdemo-ad6dd.appspot.com",
   messagingSenderId: "859784439972",
-  appId: "1:859784439972:web:3eca7a2b5a7c32f6c85e31",
-  measurementId: "G-ZPNCNV4YQN",
+  appId: "1:859784439972:web:5c736ee89e4843c5c85e31",
+  measurementId: "G-RGPXLLCE1Z",
 };
 const app = initializeApp(firebaseConfig);
-const db = getDatabase();
-const messaging = getMessaging();
-
-getToken(messaging, { vapidKey: 'AIzaSyBLyi67O-AUbdXZK1wdM0F5Vvi_couK6u0' }).then((currentToken) => {
-  if (currentToken) {
-    console.log(currentToken)
-  } else {
-    console.log('No registration token available. Request permission to generate one.');
-  }
-}).catch((err) => {
-  console.log('An error occurred while retrieving token. ', err);
-});
-
+const messaging = getMessaging(app);
+const db = getDatabase(app);
+console.log(messaging)
+getToken(messaging, {
+  vapidKey:
+    "BDPshvtX9FxW8l8AKx39z5TtjxDIBgvVjnJAvDA8TldKssFf1ZedJcEW-OPYtHxTZcCFUD1I0h3VODL36MFbyRk",
+}).catch((err) => console.log(err));
+// function requestPermission() {
+//   console.log("Requesting permission...");
+//   Notification.requestPermission().then((permission) => {
+//     if (permission === "granted") {
+//       getToken(messaging, {
+//         vapidKey:
+//           "BDPshvtX9FxW8l8AKx39z5TtjxDIBgvVjnJAvDA8TldKssFf1ZedJcEW-OPYtHxTZcCFUD1I0h3VODL36MFbyRk",
+//       })
+//         .then((currentToken) => {
+//           if (currentToken) {
+//             console.log(currentToken);
+//           } else {
+//             console.log(
+//               "No registration token available. Request permission to generate one."
+//             );
+//           }
+//         })
+//         .catch((err) => {
+//           console.log(err);
+//         });
+//     }
+//   });
+// }
+// requestPermission()
 const inputDate = new Date();
 const date = inputDate.getDate();
 const month = inputDate.getMonth() + 1;
@@ -261,7 +280,7 @@ async function handlePrevPage() {
     );
   }
 }
-// next page 
+// next page
 async function handleNextPage() {
   currenPage.innerText++;
   const dbRef = ref(db, "users/");
@@ -289,5 +308,3 @@ reqPerPage.addEventListener("change", async () => {
 });
 
 //insbtn.addEventListener("click", writeUserData);
-
-
